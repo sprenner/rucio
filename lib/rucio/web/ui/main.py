@@ -14,25 +14,40 @@
  - Cedric Serfon <cedric.serfon@cern.ch>, 2015-2017
 """
 
+import gzip
+import io
+import json
 
 from os.path import dirname, join
 
-from web import application, header, input as param_input, seeother, template
+import requests
 
-from rucio.common.config import config_get
 from rucio.common.utils import generate_http_error
 from rucio.web.ui.common.utils import check_token, get_token
 
+import sys
+import tarfile
 
-COMMON_URLS = (
+import web
+from web import application, header, input as param_input, seeother, template
+
+
+URLS = (
+    '/', 'Index',
     '/account_rse_usage', 'AccountRSEUsage',
+    '/account_usage', 'AccountUsage',
     '/account', 'Account',
     '/auth', 'Auth',
+    '/accounting', 'Accounting',
     '/bad_replicas', 'BadReplicas',
     '/suspicious_replicas', 'SuspiciousReplicas',
     '/bad_replicas/summary', 'BadReplicasSummary',
+    '/conditions_summary', 'Cond',
     '/did', 'DID',
+    '/dbrelease_summary', 'DBRelease',
+    '/dumps', 'Dumps',
     '/heartbeats', 'Heartbeats',
+    '/infrastructure', 'Infrastructure',
     '/lifetime_exception', 'LifetimeException',
     '/list_accounts', 'ListAccounts',
     '/list_rules', 'ListRulesRedirect',
@@ -45,33 +60,15 @@ COMMON_URLS = (
     '/rule', 'Rule',
     '/rules', 'Rules',
     '/request_rule', 'RequestRuleRedirect',
+    '/rule_backlog_monitor', 'BacklogMon',
     '/search', 'Search',
     '/subscriptions/rules', 'SubscriptionRules',
     '/subscription', 'Subscription',
     '/subscriptions', 'Subscriptions',
-    '/subscriptions_editor', 'SubscriptionsEditor'
+    '/subscriptions_editor', 'SubscriptionsEditor',
+    '/test', 'Test',
+    '/extract', 'ExtractLogfile'
 )
-
-POLICY = config_get('permission', 'policy')
-
-ATLAS_URLS = ()
-OTHER_URLS = ()
-
-if POLICY == 'atlas':
-    ATLAS_URLS = (
-        '/', 'AtlasIndex',
-        '/account_usage', 'AccountUsage',
-        '/dumps', 'Dumps',
-        '/accounting', 'Accounting',
-        '/conditions_summary', 'Cond',
-        '/dbrelease_summary', 'DBRelease',
-        '/infrastructure', 'Infrastructure',
-        '/rule_backlog_monitor', 'BacklogMon'
-    )
-else:
-    OTHER_URLS = (
-        '/', 'Index'
-    )
 
 
 class Account(object):
@@ -104,14 +101,6 @@ class ApproveRules(object):
         """ GET """
         render = template.render(join(dirname(__file__), 'templates/'))
         return check_token(render.approve_rules())
-
-
-class AtlasIndex(object):
-    """ Main page """
-    def GET(self):  # pylint:disable=no-self-use,invalid-name
-        """ GET """
-        render = template.render(join(dirname(__file__), 'templates/'))
-        return check_token(render.atlas_index())
 
 
 class Auth(object):
@@ -352,9 +341,63 @@ class SubscriptionsEditor():
         return check_token(render.subscriptions_editor())
 
 
+class Test():
+    """ Testing Logfile Extraction"""
+    def GET(self):
+        try:
+            data = web.input()
+            response = requests.get(str(data.textfield), cert='/opt/rucio/etc/usercert_with_key.pem', verify=False)   # TODO: cert to ddmadmin
+            cont = response.content
+            file_like_object = io.BytesIO(cont)
+            tar = tarfile.open(mode='r:gz', fileobj=file_like_object)
+            outString = 'Archive Contents:\n'
+            # outString = str(tar.getmembers())
+            for member in tar.getmembers():
+                outString += member.name + '\n'
+            return outString
+        except Exception, e:
+            print e
+            e_type = sys.exc_info()[0]
+            e_value = sys.exc_info()[1]
+            e_traceback = sys.exc_info()[2]
+            return 'Error: ' + str(e_type) + ' ' + str(e_value) + ' ' + str(e_traceback)
+
+
+class ExtractLogfile():
+    def GET(self):
+        try:
+            data = web.input()
+            response = requests.get(str(data.file_location), cert='/opt/rucio/etc/usercert_with_key.pem', verify=False)   # TODO: cert to ddmadmin
+            cont = response.content
+            file_like_object = io.BytesIO(cont)
+            tar = tarfile.open(mode='r:gz', fileobj=file_like_object)
+            for member in tar.getmembers():
+                if member.name == str(data.file_name):
+                    try:
+                        f = tar.extractfile(member)
+                        jsonResponse = json.dumps(f.read(20971520))
+                        tar.close()
+                        return jsonResponse
+                    except UnicodeDecodeError, u:
+                        print u
+                        f = tar.extractfile(member)
+                        print("here1")
+                        out = gzip.GzipFile(fileobj=f)
+                        print("here2")
+                        jsonResponse = json.dumps(out.read(20971520))
+                        print("here3")
+                        tar.close()
+                        return jsonResponse
+
+            return "okok"
+        except Exception, e:
+            print e
+            return 'Error:' + str(sys.exc_info()[0]) + ' ' + str(sys.exc_info()[1]) + ' ' + str(sys.exc_info()[2])
+
+
 """----------------------
    Web service startup
 ----------------------"""
 
-app = application(COMMON_URLS + ATLAS_URLS + OTHER_URLS, globals())
+app = application(URLS, globals())
 application = app.wsgifunc()
