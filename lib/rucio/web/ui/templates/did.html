@@ -33,6 +33,23 @@ $var script: <script src="/static/did.js"></script><link rel="stylesheet" href="
 
 <div id="result_dataset_replicas" class="row">
 </div>
+<div id="infomodalmeta" class="reveal-modal" data-reveal aria-labelledby="modalTitle2" aria-hidden="true" role="dialog">
+	<h2>Description</h2>
+	<p>This page shows a summary of all DBRelease dataset replicas per cloud. For each dataset the size and creation date is given together with replica information for every cloud. If a dataset has a replica on a site in one cloud, two numbers will be displayed: First the number of successfully transferred files and second the total number of files in this dataset.</p>
+	<p>The cells have different colours:</p>
+	<ul>
+		<li><font color="#00FF00">Green:</font> The dataset has been fully transferred to this site.</li>
+		<li><font color="#00FFFF">Blue:</font> The dataset is still open, i.e., the total number of files is currently unknown.</li>
+		<li><font color="orange">Orange:</font> The dataset is currently transferring.</li>
+		<li><font color="red">Red:</font> There has been a problem with the transfer.</li>
+	</ul>
+	<a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+<div id="infomodal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+  <h2>No Data</h2>
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
 
 <div id="result_file_replicas" class="row">
 </div>
