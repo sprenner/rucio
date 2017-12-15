@@ -12,7 +12,7 @@
 -->
 
 $var title: Data Identifier
-$var script: <script src="/static/did.js"></script><link rel="stylesheet" href="//cdn.datatables.net/1.10.2/css/jquery.dataTables.min.css"><script src="//cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
+$var script: <script src="/static/did.js"></script><link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css"><script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 
 <div id="result" class="row" data-equalizer>
 
@@ -34,28 +34,17 @@ $var script: <script src="/static/did.js"></script><link rel="stylesheet" href="
 <div id="result_dataset_replicas" class="row">
 </div>
 <div id="infomodalmeta" class="reveal-modal" data-reveal aria-labelledby="modalTitle2" aria-hidden="true" role="dialog">
-	<h2>Description</h2>
-	<p>This page shows a summary of all DBRelease dataset replicas per cloud. For each dataset the size and creation date is given together with replica information for every cloud. If a dataset has a replica on a site in one cloud, two numbers will be displayed: First the number of successfully transferred files and second the total number of files in this dataset.</p>
-	<p>The cells have different colours:</p>
-	<ul>
-		<li><font color="#00FF00">Green:</font> The dataset has been fully transferred to this site.</li>
-		<li><font color="#00FFFF">Blue:</font> The dataset is still open, i.e., the total number of files is currently unknown.</li>
-		<li><font color="orange">Orange:</font> The dataset is currently transferring.</li>
-		<li><font color="red">Red:</font> There has been a problem with the transfer.</li>
-	</ul>
-	<a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
-<div id="infomodal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
-  <h2>No Data</h2>
+    <h2>Dataset Download</h2>
+    <p>Rucio UI can create a metalink for all downloadable files within the dataset. First, load the file replicas by clicking the area on the bottom of this page. Rucio UI will load the file list and refresh the 'Dataset Replicas' list, adding a download icon next to the currently available RSEs. Triggering the download will give you .meta4 file that can be opened with a corresponding metalink downloader (or browser plugin) like <a href='https://addons.mozilla.org/de/firefox/addon/downthemall/' target='_blank'>DownThemAll!</a>. To open the metalink file with DownThemAll! follow <a href ='http://hdfeos.org/examples/docs/vertex/asf_vertex_bulk_download_mac.pdf' target='_blank'>this</a> guideline.</p>
+    <p>Note: If there are no available RSEs that store the complete dataset no download icon will appear for the 'Dataset Replicas' list.</p>    
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
-
-
 <div id="result_file_replicas" class="row">
 </div>
 
 <div id="problem_details" style="margin: 2em;"></div>
 
 <div id="infomodal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+    <h2>No Data</h2>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>   
 </div>
