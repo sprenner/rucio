@@ -350,11 +350,15 @@ class Test():
             cont = response.content
             file_like_object = io.BytesIO(cont)
             tar = tarfile.open(mode='r:gz', fileobj=file_like_object)
-            outString = 'Archive Contents:\n'
+            # outString = 'Archive Contents:\n'
             # outString = str(tar.getmembers())
+            # for member in tar.getmembers():
+            #    outString += member.name + '\n'
+            jsonResponse = {}
             for member in tar.getmembers():
-                outString += member.name + '\n'
-            return outString
+                jsonResponse[member.name] = member.size
+            web.header('Content-Type', 'application/json')
+            return json.dumps(jsonResponse)
         except Exception, e:
             print e
             e_type = sys.exc_info()[0]
@@ -366,6 +370,7 @@ class Test():
 class ExtractLogfile():
     def GET(self):
         try:
+            pyDict = {}
             data = web.input()
             response = requests.get(str(data.file_location), cert='/opt/rucio/etc/usercert_with_key.pem', verify=False)   # TODO: cert to ddmadmin
             cont = response.content
@@ -375,21 +380,22 @@ class ExtractLogfile():
                 if member.name == str(data.file_name):
                     try:
                         f = tar.extractfile(member)
-                        jsonResponse = json.dumps(f.read(20971520))
+                        pyDict['content'] = f.read(20971520)
+                        pyDict['size'] = f.tell()
+                        jsonResponse = json.dumps(pyDict)
                         tar.close()
                         return jsonResponse
                     except UnicodeDecodeError, u:
                         print u
                         f = tar.extractfile(member)
-                        print("here1")
                         out = gzip.GzipFile(fileobj=f)
-                        print("here2")
-                        jsonResponse = json.dumps(out.read(20971520))
-                        print("here3")
+                        pyDict['content'] = out.read(20971520)
+                        pyDict['size'] = out.tell()
+                        jsonResponse = json.dumps(pyDict)
                         tar.close()
                         return jsonResponse
 
-            return "okok"
+            return "ok"
         except Exception, e:
             print e
             return 'Error:' + str(sys.exc_info()[0]) + ' ' + str(sys.exc_info()[1]) + ' ' + str(sys.exc_info()[2])
