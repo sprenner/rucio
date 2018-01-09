@@ -66,8 +66,8 @@ URLS = (
     '/subscription', 'Subscription',
     '/subscriptions', 'Subscriptions',
     '/subscriptions_editor', 'SubscriptionsEditor',
-    '/test', 'Test',
-    '/extract', 'ExtractLogfile'
+    '/loadLogfile', 'LoadLogfile',
+    '/extractLogfile', 'ExtractLogfile'
 )
 
 
@@ -341,8 +341,7 @@ class SubscriptionsEditor():
         return check_token(render.subscriptions_editor())
 
 
-class Test():
-    """ Testing Logfile Extraction"""
+class LoadLogfile():
     def GET(self):
         try:
             data = web.input()
@@ -350,10 +349,6 @@ class Test():
             cont = response.content
             file_like_object = io.BytesIO(cont)
             tar = tarfile.open(mode='r:gz', fileobj=file_like_object)
-            # outString = 'Archive Contents:\n'
-            # outString = str(tar.getmembers())
-            # for member in tar.getmembers():
-            #    outString += member.name + '\n'
             jsonResponse = {}
             for member in tar.getmembers():
                 jsonResponse[member.name] = member.size
@@ -394,7 +389,6 @@ class ExtractLogfile():
                         jsonResponse = json.dumps(pyDict)
                         tar.close()
                         return jsonResponse
-
             return "ok"
         except Exception, e:
             print e
