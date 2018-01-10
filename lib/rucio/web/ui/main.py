@@ -342,6 +342,7 @@ class SubscriptionsEditor():
 
 
 class LoadLogfile():
+    """ Loads logfile content list """
     def GET(self):
         try:
             data = web.input()
@@ -363,6 +364,7 @@ class LoadLogfile():
 
 
 class ExtractLogfile():
+    """ Extracts selected logfile content """
     def GET(self):
         try:
             pyDict = {}
