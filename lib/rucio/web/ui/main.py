@@ -346,7 +346,7 @@ class LoadLogfile():
     def GET(self):
         try:
             data = web.input()
-            response = requests.get(str(data.textfield), cert='/opt/rucio/etc/usercert_with_key.pem', verify=False)   # TODO: cert to ddmadmin
+            response = requests.get(str(data.file_location), cert='/opt/rucio/etc/usercert_with_key.pem', verify=False)   # TODO: cert to ddmadmin
             cont = response.content
             file_like_object = io.BytesIO(cont)
             tar = tarfile.open(mode='r:gz', fileobj=file_like_object)
